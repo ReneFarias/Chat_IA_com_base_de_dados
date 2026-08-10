@@ -3,223 +3,533 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Guia de Relatórios · Assistente</title>
+<!--
+  ============================================================================
+  Título da aba do navegador.
+  Troque "Assistente" pelo nome da sua empresa/produto.
+  ============================================================================
+-->
+<title>Assistente · Guia de Relatórios</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
+  /* ==========================================================================
+     1) TOKENS DE DESIGN
+     Todas as cores, fontes e medidas do app vivem aqui. Para dar a sua cara
+     ao assistente, normalmente você só precisa mexer nesta seção.
+     ========================================================================== */
   :root{
-    --bg: #F3F2ED;
-    --surface: #FFFFFF;
-    --ink: #1F2A24;
-    --ink-soft: #5B6A62;
-    --border: #E1DED3;
-    --brand: #2F6F5E;
-    --brand-dark: #234F43;
-    --brand-tint: #E7EFEC;
-    --amber: #C98A3D;
-    --amber-tint: #F7EDDD;
-    --radius: 16px;
-    --font-display: "Fraunces", Georgia, serif;
-    --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: "IBM Plex Mono", monospace;
+    /* --- Paleta (tema claro) --- */
+    --bg: #F4F3EE;            /* fundo geral da página */
+    --surface: #FFFFFF;       /* cards, bolhas do bot, sidebar */
+    --surface-2: #FBFAF6;     /* fundo de inputs, hover sutil */
+    --ink: #1B231F;           /* texto principal */
+    --ink-soft: #626F67;      /* texto secundário */
+    --border: #E2DFD3;        /* linhas e contornos */
+
+    /* Cor da marca baseada em matiz (hue). Mude só --brand-h (0–360) para
+       recolorir o app inteiro — é o que o controle deslizante em Ajustes faz
+       em tempo real. Saturação/luminosidade ficam fixas por tema para manter
+       o contraste sempre legível, claro ou escuro. */
+    --brand-h: 165;
+    --brand: hsl(var(--brand-h) 40% 28%);      /* cor principal da marca */
+    --brand-dark: hsl(var(--brand-h) 46% 20%); /* hover / estados ativos */
+    --brand-tint: hsl(var(--brand-h) 35% 93%); /* fundos suaves com a cor da marca */
+
+    --accent: #C98A3D;        /* cor de destaque (referências, alertas leves) */
+    --accent-tint: #F7EDDD;
+
+    --danger: #B3492F;        /* erros */
+    --danger-tint: #F6E7E2;
+
+    /* --- Tipografia --- */
+    --font-display: "Fraunces", Georgia, serif;   /* títulos e wordmark */
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif; /* texto */
+    --font-mono: "IBM Plex Mono", monospace;      /* dados, rótulos, timestamps */
+
+    /* --- Layout --- */
+    --radius-sm: 8px;
+    --radius: 14px;
+    --radius-lg: 20px;
+    --sidebar-w: 272px;
+    --header-h: 60px;
+    --shadow-soft: 0 1px 2px rgba(27,35,31,0.04), 0 10px 28px rgba(27,35,31,0.08);
+  }
+
+  /* --- Paleta (tema escuro) --- aplicada quando <html data-theme="dark"> */
+  html[data-theme="dark"]{
+    --bg: #121714;
+    --surface: #1B211D;
+    --surface-2: #212822;
+    --ink: #EDEFEA;
+    --ink-soft: #9BA79E;
+    --border: #2B322D;
+
+    --brand: hsl(var(--brand-h) 38% 54%);
+    --brand-dark: hsl(var(--brand-h) 42% 68%);
+    --brand-tint: hsl(var(--brand-h) 30% 16%);
+
+    --accent: #E0A85C;
+    --accent-tint: #2B2318;
+
+    --danger: #E17A5F;
+    --danger-tint: #2E2019;
+
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 10px 28px rgba(0,0,0,0.35);
   }
 
   *{ box-sizing: border-box; }
+  html, body{ height: 100%; margin: 0; }
 
-  html, body{
-    height: 100%;
-    margin: 0;
-  }
-
+  /* Fundo "mesh gradient": manchas suaves de cor + textura de pontos fina.
+     Tudo derivado de --brand-h, então muda junto com o controle de cor. */
   body{
-    background: var(--bg);
+    background-color: var(--bg);
     background-image:
-      radial-gradient(circle at 1px 1px, rgba(47,111,94,0.07) 1px, transparent 0);
-    background-size: 22px 22px;
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 6%, transparent) 1px, transparent 0),
+      radial-gradient(600px 400px at 8% -5%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 60%),
+      radial-gradient(500px 380px at 108% 8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
+      radial-gradient(600px 460px at 50% 115%, color-mix(in srgb, var(--brand) 10%, transparent), transparent 65%);
+    background-size: 22px 22px, auto, auto, auto;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+    background-attachment: fixed;
     font-family: var(--font-body);
     color: var(--ink);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  .app{
-    width: 100%;
-    max-width: 720px;
+  button, input, textarea{ font-family: inherit; color: inherit; }
+  a{ color: var(--brand-dark); }
+
+  /* Foco visível para acessibilidade (teclado) */
+  a:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible{
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  /* ==========================================================================
+     2) SHELL DO APP — sidebar + coluna principal
+     ========================================================================== */
+  .shell{
+    display: flex;
+    height: 100vh;
+    max-width: 1280px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: transparent;
   }
 
-  @media (min-width: 760px){
-    .app{
-      margin: 24px auto;
-      min-height: calc(100vh - 48px);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 1px 2px rgba(31,42,36,0.04), 0 12px 32px rgba(31,42,36,0.10);
-      border: 1px solid var(--border);
+  @media (min-width: 900px){
+    .shell{
+      padding: 20px;
+      gap: 20px;
     }
   }
 
-  /* ---------- Header ---------- */
-  header{
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width: var(--sidebar-w);
+    flex-shrink: 0;
     background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  @media (min-width: 900px){
+    .sidebar{
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
+  }
+
+  /* Em telas pequenas a sidebar vira uma gaveta (drawer) sobreposta */
+  @media (max-width: 899px){
+    .sidebar{
+      position: fixed;
+      inset: 0 25% 0 0;
+      z-index: 40;
+      transform: translateX(-100%);
+      transition: transform 0.22s ease;
+    }
+    .shell.sidebar-open .sidebar{ transform: translateX(0); }
+    .scrim{
+      position: fixed; inset: 0;
+      background: rgba(20,24,21,0.4);
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .shell.sidebar-open .scrim{ opacity: 1; pointer-events: auto; }
+  }
+  @media (min-width: 900px){ .scrim{ display: none; } }
+
+  .sidebar-header{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 16px;
     border-bottom: 1px solid var(--border);
-    padding: 18px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-shrink: 0;
   }
 
+  /* Marca / logo — troque o <svg> em .mark pelo logo da empresa se preferir
+     (ou substitua por <img src="logo.svg" ...>) */
   .mark{
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    width: 36px; height: 36px;
+    border-radius: 10px;
     background: var(--brand);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
+  .mark svg{ width: 19px; height: 19px; }
 
-  .mark svg{ width: 22px; height: 22px; }
+  .brand-name{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15.5px;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .brand-sub{
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin: 1px 0 0;
+  }
 
+  .new-chat-wrap{ padding: 12px; }
+  .new-chat-btn{
+    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .new-chat-btn:hover{ background: var(--brand-dark); }
+  .new-chat-btn svg{ width: 15px; height: 15px; }
+
+  .sidebar-section-label{
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 4px 16px;
+  }
+
+  .conversation-list{
+    flex: 1;
+    overflow-y: auto;
+    padding: 2px 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .conversation-item{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 9px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    text-align: left;
+    color: var(--ink);
+  }
+  .conversation-item:hover{ background: var(--surface-2); }
+  .conversation-item.active{
+    background: var(--brand-tint);
+    border-color: color-mix(in srgb, var(--brand) 25%, transparent);
+    color: var(--brand-dark);
+    font-weight: 600;
+  }
+  .conversation-item .dot{
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink-soft); flex-shrink: 0;
+  }
+  .conversation-item.active .dot{ background: var(--brand); }
+  .conversation-item span.label{
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .conversation-empty-hint{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    padding: 10px 12px;
+    line-height: 1.5;
+  }
+
+  .sidebar-footer{
+    border-top: 1px solid var(--border);
+    padding: 10px;
+    display: flex;
+    gap: 6px;
+  }
+  .sidebar-footer-btn{
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 6px;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .sidebar-footer-btn:hover{ border-color: var(--brand); color: var(--ink); }
+  .sidebar-footer-btn svg{ width: 16px; height: 16px; }
+
+  /* ---------- Coluna principal ---------- */
+  .main-col{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    height: 100%;
+  }
+
+  @media (min-width: 900px){
+    .main-col{ border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); }
+  }
+  @media (max-width: 899px){
+    .main-col{ border: none; }
+  }
+
+  header{
+    height: var(--header-h);
+    flex-shrink: 0;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+  }
+  /* Fio de gradiente sutil no rodapé do cabeçalho — o toque de cor assinatura */
+  header::after{
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+    background: linear-gradient(90deg, var(--brand), color-mix(in srgb, var(--accent) 70%, var(--brand)), transparent 85%);
+    opacity: 0.75;
+  }
+
+  .menu-btn{
+    display: none;
+    width: 34px; height: 34px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  @media (max-width: 899px){ .menu-btn{ display: flex; } }
+  .menu-btn svg{ width: 17px; height: 17px; }
+
+  .header-text{ flex: 1; min-width: 0; }
   .header-text h1{
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 18px;
+    font-size: 16.5px;
     margin: 0;
     letter-spacing: -0.01em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-
   .header-text p{
-    margin: 2px 0 0;
-    font-size: 13px;
+    margin: 1px 0 0;
+    font-size: 12.5px;
     color: var(--ink-soft);
     display: flex;
     align-items: center;
     gap: 6px;
   }
-
   .status-dot{
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
+    width: 7px; height: 7px; border-radius: 50%;
     background: var(--brand);
-    display: inline-block;
     box-shadow: 0 0 0 3px var(--brand-tint);
+    animation: pulseDot 2.2s ease-in-out infinite;
+  }
+  .status-dot.offline{
+    background: var(--danger); box-shadow: 0 0 0 3px var(--danger-tint);
+    animation: none;
+  }
+  @keyframes pulseDot{
+    0%, 100%{ box-shadow: 0 0 0 3px var(--brand-tint); }
+    50%{ box-shadow: 0 0 0 6px transparent; }
   }
 
-  /* ---------- Chat area ---------- */
+  .header-actions{ display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .icon-btn{
+    width: 34px; height: 34px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .icon-btn:hover{ border-color: var(--brand); background: var(--surface-2); }
+  .icon-btn svg{ width: 16px; height: 16px; }
+
+  /* ---------- Área de chat ---------- */
   main{
     flex: 1;
+    position: relative;
     overflow-y: auto;
-    padding: 20px 16px 8px;
+    overflow-x: hidden;
+    padding: 22px 18px 8px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
+  }
+  main::-webkit-scrollbar{ width: 6px; }
+  main::-webkit-scrollbar-thumb{ background: var(--border); border-radius: 3px; }
+
+  /* Figuras decorativas animadas — manchas de luz suaves flutuando atrás
+     do chat. Puramente visuais (pointer-events: none), cor derivada da
+     marca/destaque, então acompanham o controle de cor automaticamente. */
+  .bg-orbs{
+    position: absolute; inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb{
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.28;
+    animation: orbFloat 18s ease-in-out infinite;
+  }
+  .orb.o1{ width: 240px; height: 240px; left: -60px; top: -40px; background: var(--brand); }
+  .orb.o2{ width: 200px; height: 200px; right: -50px; top: 30%; background: var(--accent); animation-duration: 22s; animation-delay: -6s; }
+  .orb.o3{ width: 260px; height: 260px; left: 20%; bottom: -80px; background: var(--brand); animation-duration: 26s; animation-delay: -12s; opacity: 0.18; }
+  @keyframes orbFloat{
+    0%, 100%{ transform: translate(0, 0) scale(1); }
+    50%{ transform: translate(22px, -26px) scale(1.12); }
   }
 
-  .row{
-    display: flex;
-    gap: 10px;
-    max-width: 100%;
-  }
-
+  .row{ display: flex; gap: 10px; max-width: 100%; position: relative; z-index: 1; animation: msgIn 0.35s ease both; }
   .row.user{ justify-content: flex-end; }
+  @keyframes msgIn{
+    from{ opacity: 0; transform: translateY(8px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
 
   .avatar{
-    width: 30px;
-    height: 30px;
+    width: 30px; height: 30px;
     border-radius: 9px;
     background: var(--brand-tint);
     color: var(--brand-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 14px;
     flex-shrink: 0;
     margin-top: 2px;
   }
+
+  .msg-col{ display: flex; flex-direction: column; gap: 4px; max-width: 78%; }
+  .row.user .msg-col{ align-items: flex-end; }
 
   .bubble{
     padding: 11px 14px;
     border-radius: var(--radius);
     font-size: 14.5px;
     line-height: 1.55;
-    max-width: 78%;
     word-wrap: break-word;
   }
-
   .row.bot .bubble{
-    background: var(--surface);
+    background: var(--surface-2);
     border: 1px solid var(--border);
     border-top-left-radius: 4px;
   }
-
   .row.user .bubble{
     background: var(--brand);
     color: #fff;
     border-top-right-radius: 4px;
   }
-
   .bubble p{ margin: 0 0 8px; }
   .bubble p:last-child{ margin-bottom: 0; }
+  .bubble code{
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .row.user .bubble code{ background: rgba(255,255,255,0.18); }
 
-  /* Report/link reference chip — the signature element */
+  .msg-meta{
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .copy-btn{
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 0;
+  }
+  .copy-btn:hover{ color: var(--brand); }
+
+  /* Cartão de referência — o elemento assinatura deste layout.
+     Usado para apontar caminhos de relatório, arquivos-fonte ou links,
+     detectado automaticamente em linhas como "Caminho: ..." (ver JS). */
   .ref-chip{
     display: flex;
     align-items: flex-start;
     gap: 9px;
-    background: var(--amber-tint);
-    border: 1px solid #EAD3AC;
+    background: var(--accent-tint);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
     border-radius: 10px;
     padding: 9px 11px;
-    margin-top: 8px;
+    margin-top: 4px;
     text-decoration: none;
     color: var(--ink);
   }
-
   .ref-chip .ref-icon{
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--amber);
-    border: 1px solid #EAD3AC;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
     border-radius: 5px;
     padding: 2px 5px;
     flex-shrink: 0;
     margin-top: 1px;
     letter-spacing: 0.03em;
   }
+  .ref-chip .ref-text{ font-size: 13.5px; line-height: 1.45; word-break: break-word; }
 
-  .ref-chip .ref-text{
-    font-size: 13.5px;
-    line-height: 1.45;
-    word-break: break-word;
-  }
-
-  .bubble a:not(.ref-chip){
-    color: var(--brand-dark);
-    font-weight: 500;
-  }
-  .row.user .bubble a{ color: #fff; text-decoration-color: rgba(255,255,255,0.6); }
-
-  /* Typing indicator */
-  .typing{
-    display: flex;
-    gap: 4px;
-    padding: 4px 2px;
-  }
+  /* Indicador de "digitando…" */
+  .typing{ display: flex; gap: 4px; padding: 4px 2px; }
   .typing span{
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--ink-soft);
-    opacity: 0.5;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink-soft); opacity: 0.5;
     animation: bounce 1.2s infinite ease-in-out;
   }
   .typing span:nth-child(2){ animation-delay: 0.15s; }
@@ -228,23 +538,15 @@
     0%, 60%, 100%{ transform: translateY(0); opacity: 0.4; }
     30%{ transform: translateY(-4px); opacity: 0.9; }
   }
-  @media (prefers-reduced-motion: reduce){
-    .typing span{ animation: none; opacity: 0.7; }
-  }
 
-  /* ---------- Suggestion chips ---------- */
+  /* ---------- Sugestões ---------- */
   .suggestions{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 4px 16px 4px;
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 4px 18px 4px;
   }
-
   .chip{
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 500;
-    background: var(--surface);
+    font-size: 13px; font-weight: 500;
+    background: var(--surface-2);
     border: 1px solid var(--border);
     color: var(--ink);
     padding: 8px 13px;
@@ -252,19 +554,30 @@
     cursor: pointer;
     transition: border-color 0.15s ease, transform 0.1s ease;
   }
-  .chip:hover{ border-color: var(--brand); }
+  .chip{ transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
+  .chip:hover{ border-color: var(--brand); transform: translateY(-2px); box-shadow: 0 6px 14px rgba(31,42,36,0.08); }
   .chip:active{ transform: scale(0.97); }
 
-  /* ---------- Input bar ---------- */
+  /* ---------- Barra de composição ---------- */
   .composer{
     flex-shrink: 0;
-    background: var(--surface);
     border-top: 1px solid var(--border);
     padding: 12px 14px;
     display: flex;
     align-items: flex-end;
-    gap: 10px;
+    gap: 8px;
   }
+  .attach-btn{
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .attach-btn:hover{ border-color: var(--brand); }
+  .attach-btn svg{ width: 17px; height: 17px; }
 
   textarea{
     flex: 1;
@@ -272,11 +585,10 @@
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 11px 14px;
-    font-family: var(--font-body);
     font-size: 14.5px;
     line-height: 1.4;
-    max-height: 120px;
-    background: var(--bg);
+    max-height: 140px;
+    background: var(--surface-2);
     color: var(--ink);
   }
   textarea:focus{
@@ -287,14 +599,11 @@
   textarea::placeholder{ color: var(--ink-soft); }
 
   .send-btn{
-    width: 42px;
-    height: 42px;
+    width: 42px; height: 42px;
     border-radius: 12px;
     background: var(--brand);
     border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.15s ease;
@@ -310,195 +619,749 @@
     padding: 2px 16px 12px;
   }
 
-  main::-webkit-scrollbar{ width: 6px; }
-  main::-webkit-scrollbar-thumb{ background: var(--border); border-radius: 3px; }
+  /* ==========================================================================
+     3) MODAL DE CONFIGURAÇÕES
+     Permite ajustar, em tempo real (sem editar código), o nome do
+     assistente, a URL do webhook e o tema.
+     ========================================================================== */
+  .modal-scrim{
+    position: fixed; inset: 0;
+    background: rgba(20,24,21,0.45);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 60;
+    padding: 20px;
+  }
+  .modal-scrim.open{ display: flex; }
+
+  .modal{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-soft);
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+  .modal-header{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2{
+    font-family: var(--font-display);
+    font-size: 16px;
+    margin: 0;
+  }
+  .modal-close{
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-soft);
+  }
+  .modal-close:hover{ background: var(--surface-2); }
+
+  .modal-body{ padding: 16px 18px; display: flex; flex-direction: column; gap: 16px; }
+  .field label{
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink-soft);
+  }
+  .field input[type="text"], .field input[type="url"]{
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 13.5px;
+  }
+  .field input:focus{ outline: none; border-color: var(--brand); }
+  .field-hint{ font-size: 11.5px; color: var(--ink-soft); margin-top: 5px; }
+
+  /* Barra deslizante de matiz — trilho em arco-íris, "polegar" com anel */
+  .hue-row{ display: flex; align-items: center; gap: 10px; }
+  .hue-swatch{
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--brand);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    transition: background 0.1s ease;
+  }
+  input[type="range"]#cfgHue{
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg,
+      hsl(0 70% 55%), hsl(60 70% 55%), hsl(120 70% 45%), hsl(180 70% 45%),
+      hsl(240 70% 55%), hsl(300 70% 55%), hsl(360 70% 55%));
+    cursor: pointer;
+  }
+  input[type="range"]#cfgHue::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--ink);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  input[type="range"]#cfgHue::-moz-range-thumb{
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--ink);
+    cursor: pointer;
+  }
+  .hue-presets{ display: flex; gap: 8px; margin-top: 10px; }
+  .hue-dot{
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    outline: 1px solid var(--border);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.12s ease;
+  }
+  .hue-dot:hover{ transform: scale(1.15); }
+
+  .theme-toggle-row{ display: flex; gap: 8px; }
+  .theme-opt{
+    flex: 1;
+    padding: 9px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+  }
+  .theme-opt.active{ border-color: var(--brand); background: var(--brand-tint); color: var(--brand-dark); }
+
+  .modal-footer{
+    padding: 14px 18px 18px;
+    display: flex; justify-content: flex-end; gap: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .btn{
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+  }
+  .btn.primary{ background: var(--brand); border-color: var(--brand); color: #fff; }
+  .btn.primary:hover{ background: var(--brand-dark); }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <header>
-    <div class="mark">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 5.5C4 4.67 4.67 4 5.5 4H12V20H5.5C4.67 20 4 19.33 4 18.5V5.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M20 5.5C20 4.67 19.33 4 18.5 4H12V20H18.5C19.33 20 20 19.33 20 18.5V5.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
-        <path d="M8 8H9M8 11H9" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <div class="header-text">
-      <h1>Guia de Relatórios</h1>
-      <p><span class="status-dot"></span>Assistente para achar o relatório certo</p>
-    </div>
-  </header>
+<div class="shell" id="shell">
 
-  <main id="chat"></main>
+  <!-- Fundo escurecido atrás da sidebar em telas pequenas -->
+  <div class="scrim" id="scrim"></div>
 
-  <div class="suggestions" id="suggestions">
-    <button class="chip" type="button">Relatório de vendas do mês</button>
-    <button class="chip" type="button">Indicadores financeiros</button>
-    <button class="chip" type="button">Como encontro um relatório antigo?</button>
+  <!-- =========================================================================
+       SIDEBAR — marca, botão de nova conversa, histórico e atalhos.
+       O histórico é apenas visual por padrão (guardado em memória, não em
+       disco). Para persistir de verdade, ligue-o ao backend/n8n.
+       ========================================================================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="mark">
+        <!-- Ícone padrão (livro aberto). Troque por <img> para usar seu logo. -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 5.5C4 4.67 4.67 4 5.5 4H12V20H5.5C4.67 20 4 19.33 4 18.5V5.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M20 5.5C20 4.67 19.33 4 18.5 4H12V20H18.5C19.33 20 20 19.33 20 18.5V5.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M8 8H9M8 11H9" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <p class="brand-name" id="sidebarBrandName">Assistente</p>
+        <p class="brand-sub" id="sidebarBrandSub">Guia de Relatórios</p>
+      </div>
+    </div>
+
+    <div class="new-chat-wrap">
+      <button class="new-chat-btn" id="newChatBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+        Nova conversa
+      </button>
+    </div>
+
+    <p class="sidebar-section-label">Conversas recentes</p>
+    <div class="conversation-list" id="conversationList">
+      <!-- Preenchido via JS. Enquanto não há conversas, mostramos uma dica. -->
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" id="themeBtn" type="button" title="Alternar tema">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3V4M12 20V21M4 12H3M21 12H20M5.6 5.6L4.9 4.9M18.4 5.6L19.1 4.9M5.6 18.4L4.9 19.1M18.4 18.4L19.1 19.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/></svg>
+        Tema
+      </button>
+      <button class="sidebar-footer-btn" id="settingsBtn" type="button" title="Configurações">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14.2 3H9.8l-.4 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9c.6.5 1.3.9 2 1.2l.4 2.6h4.4l.4-2.6c.7-.3 1.4-.7 2-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Ajustes
+      </button>
+    </div>
+  </aside>
+
+  <!-- =========================================================================
+       COLUNA PRINCIPAL — cabeçalho, mensagens, sugestões e composer.
+       ========================================================================= -->
+  <div class="main-col">
+    <header>
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Abrir menu">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+      <div class="header-text">
+        <h1 id="headerTitle">Guia de Relatórios</h1>
+        <p><span class="status-dot" id="statusDot"></span><span id="statusText">Pronto para ajudar</span></p>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="clearBtn" type="button" title="Limpar conversa">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7H19M9 7V5.5C9 4.67 9.67 4 10.5 4H13.5C14.33 4 15 4.67 15 5.5V7M7 7L7.6 18.4C7.65 19.28 8.38 20 9.26 20H14.74C15.62 20 16.35 19.28 16.4 18.4L17 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="chat"></main>
+
+    <div class="suggestions" id="suggestions">
+      <!-- Preenchido via JS a partir de CONFIG.suggestions -->
+    </div>
+
+    <form class="composer" id="composer">
+      <!-- Botão de anexo — placeholder pronto para expansão (ver comentário no JS) -->
+      <button class="attach-btn" id="attachBtn" type="button" title="Anexar arquivo (em breve)">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.5 8.5L9.6 16.4a3 3 0 0 1-4.24-4.24l8.13-8.13a2 2 0 0 1 2.83 2.83l-7.78 7.78a1 1 0 0 1-1.42-1.41l6.72-6.72" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <textarea id="input" rows="1" placeholder="Descreva o que você precisa encontrar…" autocomplete="off"></textarea>
+      <button class="send-btn" id="sendBtn" type="submit" aria-label="Enviar mensagem">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      </button>
+    </form>
+    <div class="footnote" id="footnoteText">Assistente de IA · pode cometer erros, confira sempre a fonte original</div>
   </div>
+</div>
 
-  <form class="composer" id="composer">
-    <textarea id="input" rows="1" placeholder="Descreva o que você precisa encontrar…" autocomplete="off"></textarea>
-    <button class="send-btn" id="sendBtn" type="submit" aria-label="Enviar mensagem">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="white" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </form>
-  <div class="footnote">Assistente de IA · pode cometer erros, confira sempre o relatório original</div>
+<!-- =============================================================================
+     MODAL DE CONFIGURAÇÕES — ajustes rápidos em tempo real (sem editar código).
+     ============================================================================= -->
+<div class="modal-scrim" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Configurações</h2>
+      <button class="modal-close" id="closeSettings" type="button" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="cfgName">Nome do assistente</label>
+        <input type="text" id="cfgName" placeholder="Ex.: Assistente Financeiro">
+      </div>
+      <div class="field">
+        <label for="cfgSub">Subtítulo</label>
+        <input type="text" id="cfgSub" placeholder="Ex.: Guia de Relatórios">
+      </div>
+      <div class="field">
+        <label for="cfgWebhook">URL do webhook (n8n)</label>
+        <input type="url" id="cfgWebhook" placeholder="https://seu-n8n.com/webhook/...">
+        <p class="field-hint">Endpoint que recebe a mensagem e devolve a resposta da IA.</p>
+      </div>
+      <div class="field">
+        <label>Tema</label>
+        <div class="theme-toggle-row">
+          <button type="button" class="theme-opt" id="themeOptLight">Claro</button>
+          <button type="button" class="theme-opt" id="themeOptDark">Escuro</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="cfgHue">Cor de destaque</label>
+        <div class="hue-row">
+          <span class="hue-swatch" id="hueSwatch"></span>
+          <input type="range" id="cfgHue" min="0" max="360" step="1">
+        </div>
+        <div class="hue-presets" id="huePresets">
+          <!-- Botões de atalho para matizes comuns, preenchidos via JS -->
+        </div>
+        <p class="field-hint">Arraste para escolher qualquer tom, ou clique em um atalho. Vale para os temas claro e escuro.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="cancelSettings" type="button">Cancelar</button>
+      <button class="btn primary" id="saveSettings" type="button">Salvar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  // =====================================================================
-  // CONFIGURAÇÃO — troque pela URL pública do seu webhook do n8n
-  // =====================================================================
-  const CONFIG = {
-    WEBHOOK_URL: "https://SEU-TUNEL-OU-DOMINIO.com/webhook/SEU-WEBHOOK-ID",
-  };
+/* ============================================================================
+   CONFIG — painel de controle central do app.
+   Praticamente toda personalização de comportamento/conteúdo começa aqui.
+   As mudanças feitas pelo modal de "Ajustes" sobrescrevem estes valores
+   apenas durante a sessão atual (não editam este arquivo).
+   ============================================================================ */
+const CONFIG = {
+  // URL pública do seu webhook (n8n, Make, backend próprio, etc.)
+  WEBHOOK_URL: "http://localhost:5678/webhook/40fb42df-31c5-4612-97b9-a58d463f527b",
 
-  const chat = document.getElementById("chat");
-  const composer = document.getElementById("composer");
-  const input = document.getElementById("input");
-  const sendBtn = document.getElementById("sendBtn");
-  const suggestions = document.getElementById("suggestions");
+  // Identidade do assistente
+  brandName: "Assistente",
+  brandSub: "Guia de Relatórios",
+  headerTitle: "Guia de Relatórios",
+  footnote: "Assistente de IA · pode cometer erros, confira sempre a fonte original",
 
-  const sessionId = "web-" + Math.random().toString(36).slice(2, 10);
+  // Mensagem inicial exibida ao abrir o chat
+  welcomeMessage: "Olá! Eu ajudo a encontrar o relatório certo do Power BI. Me conta o que você está procurando — assunto, período ou área — que eu indico onde está.",
 
-  function scrollToBottom(){
-    chat.scrollTop = chat.scrollHeight;
+  // Chips de sugestão exibidos abaixo do chat (aparecem só no início)
+  suggestions: [
+    "Relatório de vendas do mês",
+    "Indicadores financeiros",
+    "Como encontro um relatório antigo?",
+  ],
+
+  // Tema inicial: "light" ou "dark"
+  defaultTheme: "light",
+
+  // Matiz inicial da cor de marca (0–360, escala HSL). 165 = verde-azulado.
+  // O visitante pode ajustar isso na hora pelo controle deslizante em Ajustes.
+  defaultHue: 165,
+
+  // Atalhos de cor mostrados como bolinhas abaixo do controle deslizante.
+  huePresets: [
+    { hue: 165, label: "Verde-azulado" },
+    { hue: 205, label: "Azul" },
+    { hue: 265, label: "Roxo" },
+    { hue: 340, label: "Rosa" },
+    { hue: 25,  label: "Laranja" },
+  ],
+
+  // Letra/inicial usada no avatar do bot (também aceita emoji, ex.: "🤖")
+  botAvatarLabel: "◆",
+};
+
+/* ============================================================================
+   ESTADO EM MEMÓRIA
+   O app não usa armazenamento em disco/localStorage por padrão — tudo vive
+   em variáveis JS e é reiniciado ao recarregar a página. Isso é proposital
+   para manter o exemplo simples e portátil; se quiser persistência real
+   (histórico entre sessões, múltiplas conversas), ligue estas estruturas
+   a um backend (o próprio fluxo do n8n é um bom lugar para isso).
+   ============================================================================ */
+const state = {
+  theme: CONFIG.defaultTheme,
+  sessionId: "web-" + Math.random().toString(36).slice(2, 10),
+  conversations: [
+    // Exemplo de item de histórico (apenas ilustrativo/visual por padrão).
+    // { id: "1", label: "Relatório de vendas — Julho", active: true },
+  ],
+};
+
+/* ============================================================================
+   REFERÊNCIAS DO DOM
+   ============================================================================ */
+const el = {
+  shell: document.getElementById("shell"),
+  scrim: document.getElementById("scrim"),
+  sidebar: document.getElementById("sidebar"),
+  menuBtn: document.getElementById("menuBtn"),
+  chat: document.getElementById("chat"),
+  composer: document.getElementById("composer"),
+  input: document.getElementById("input"),
+  sendBtn: document.getElementById("sendBtn"),
+  attachBtn: document.getElementById("attachBtn"),
+  suggestions: document.getElementById("suggestions"),
+  newChatBtn: document.getElementById("newChatBtn"),
+  clearBtn: document.getElementById("clearBtn"),
+  conversationList: document.getElementById("conversationList"),
+  statusDot: document.getElementById("statusDot"),
+  statusText: document.getElementById("statusText"),
+  themeBtn: document.getElementById("themeBtn"),
+  settingsBtn: document.getElementById("settingsBtn"),
+  settingsModal: document.getElementById("settingsModal"),
+  closeSettings: document.getElementById("closeSettings"),
+  cancelSettings: document.getElementById("cancelSettings"),
+  saveSettings: document.getElementById("saveSettings"),
+  cfgName: document.getElementById("cfgName"),
+  cfgSub: document.getElementById("cfgSub"),
+  cfgWebhook: document.getElementById("cfgWebhook"),
+  themeOptLight: document.getElementById("themeOptLight"),
+  themeOptDark: document.getElementById("themeOptDark"),
+  cfgHue: document.getElementById("cfgHue"),
+  hueSwatch: document.getElementById("hueSwatch"),
+  huePresets: document.getElementById("huePresets"),
+  sidebarBrandName: document.getElementById("sidebarBrandName"),
+  sidebarBrandSub: document.getElementById("sidebarBrandSub"),
+  headerTitle: document.getElementById("headerTitle"),
+  footnoteText: document.getElementById("footnoteText"),
+};
+
+/* ============================================================================
+   TEMA (claro / escuro)
+   ============================================================================ */
+function applyTheme(theme){
+  state.theme = theme;
+  document.documentElement.setAttribute("data-theme", theme);
+  el.themeOptLight.classList.toggle("active", theme === "light");
+  el.themeOptDark.classList.toggle("active", theme === "dark");
+}
+el.themeBtn.addEventListener("click", () => {
+  applyTheme(state.theme === "light" ? "dark" : "light");
+});
+el.themeOptLight.addEventListener("click", () => applyTheme("light"));
+el.themeOptDark.addEventListener("click", () => applyTheme("dark"));
+
+/* ============================================================================
+   COR DE DESTAQUE (matiz ajustável)
+   Muda apenas a variável CSS --brand-h; todas as outras cores derivadas
+   (--brand, --brand-dark, --brand-tint, os "orbs" animados, o fio do
+   cabeçalho etc.) são recalculadas automaticamente pelo navegador.
+   ============================================================================ */
+function applyBrandColor(hue){
+  document.documentElement.style.setProperty("--brand-h", hue);
+  el.cfgHue.value = hue;
+  el.hueSwatch.style.background = `hsl(${hue} 42% 40%)`;
+}
+
+function renderHuePresets(){
+  el.huePresets.innerHTML = "";
+  CONFIG.huePresets.forEach(preset => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "hue-dot";
+    dot.title = preset.label;
+    dot.style.background = `hsl(${preset.hue} 55% 45%)`;
+    dot.addEventListener("click", () => applyBrandColor(preset.hue));
+    el.huePresets.appendChild(dot);
+  });
+}
+
+el.cfgHue.addEventListener("input", () => applyBrandColor(el.cfgHue.value));
+
+/* ============================================================================
+   SIDEBAR RESPONSIVA (gaveta em telas pequenas)
+   ============================================================================ */
+function openSidebar(){ el.shell.classList.add("sidebar-open"); }
+function closeSidebar(){ el.shell.classList.remove("sidebar-open"); }
+el.menuBtn.addEventListener("click", openSidebar);
+el.scrim.addEventListener("click", closeSidebar);
+
+/* ============================================================================
+   LISTA DE CONVERSAS (histórico)
+   Renderização simples a partir de state.conversations. Substitua por uma
+   chamada real ao seu backend quando quiser persistência entre sessões.
+   ============================================================================ */
+function renderConversationList(){
+  el.conversationList.innerHTML = "";
+  if (state.conversations.length === 0){
+    el.conversationList.innerHTML = `<p class="conversation-empty-hint">Suas conversas aparecerão aqui. Comece perguntando algo abaixo.</p>`;
+    return;
   }
+  state.conversations.forEach(conv => {
+    const btn = document.createElement("button");
+    btn.className = "conversation-item" + (conv.active ? " active" : "");
+    btn.type = "button";
+    btn.innerHTML = `<span class="dot"></span><span class="label">${escapeHTML(conv.label)}</span>`;
+    el.conversationList.appendChild(btn);
+  });
+}
 
-  // Converte texto simples em HTML seguro, detectando URLs e linhas
-  // "Caminho: ..." / "Local: ..." para virarem o chip de referência.
-  function escapeHTML(str){
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
+/* ============================================================================
+   RENDERIZAÇÃO DE MENSAGENS
+   ============================================================================ */
+// Marcação das figuras animadas de fundo. Fica dentro de #chat, então é
+// reinserida sempre que a conversa é limpa (ver clearChat()).
+const ORBS_HTML = `<div class="bg-orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>`;
+
+function clearChat(){
+  el.chat.innerHTML = ORBS_HTML;
+}
+
+function scrollToBottom(){ el.chat.scrollTop = el.chat.scrollHeight; }
+
+function escapeHTML(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Converte texto simples em HTML seguro: detecta URLs, trechos `code` e
+// linhas como "Caminho: ..." / "Fonte: ..." que viram o cartão de referência.
+function renderBotText(raw){
+  const lines = raw.split(/\n+/).filter(Boolean);
+  let html = "";
+  const urlRegex = /((https?:\/\/|www\.)[^\s]+)/gi;
+  const codeRegex = /`([^`]+)`/g;
+  const pathRegex = /^(caminho|local|onde encontrar|pasta|fonte|arquivo)\s*:\s*(.+)$/i;
+
+  lines.forEach(line => {
+    const pathMatch = line.match(pathRegex);
+    if (pathMatch){
+      const label = escapeHTML(pathMatch[1]);
+      const value = escapeHTML(pathMatch[2]);
+      html += `<div class="ref-chip"><span class="ref-icon">${label.slice(0,3).toUpperCase()}</span><span class="ref-text">${value}</span></div>`;
+      return;
+    }
+    let safe = escapeHTML(line);
+    safe = safe.replace(codeRegex, (_, code) => `<code>${code}</code>`);
+    safe = safe.replace(urlRegex, url => {
+      const href = url.startsWith("http") ? url : `https://${url}`;
+      return `<a href="${href}" target="_blank" rel="noopener">${url}</a>`;
+    });
+    html += `<p>${safe}</p>`;
+  });
+
+  return html || `<p>${escapeHTML(raw)}</p>`;
+}
+
+function formatTime(){
+  return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function addMessage(role, content, isTyping){
+  const row = document.createElement("div");
+  row.className = `row ${role}`;
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = role === "bot" ? CONFIG.botAvatarLabel : "";
+  if (role === "user") avatar.style.display = "none";
+
+  const col = document.createElement("div");
+  col.className = "msg-col";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+
+  if (isTyping){
+    bubble.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+  } else if (role === "bot"){
+    bubble.innerHTML = renderBotText(content);
+  } else {
+    bubble.textContent = content;
   }
+  col.appendChild(bubble);
 
-  function renderBotText(raw){
-    const lines = raw.split(/\n+/).filter(Boolean);
-    let html = "";
-    const urlRegex = /((https?:\/\/|www\.)[^\s]+)/gi;
-    const pathRegex = /^(caminho|local|onde encontrar|pasta)\s*:\s*(.+)$/i;
-
-    lines.forEach(line => {
-      const pathMatch = line.match(pathRegex);
-      if (pathMatch){
-        const label = escapeHTML(pathMatch[1]);
-        const value = escapeHTML(pathMatch[2]);
-        html += `<div class="ref-chip"><span class="ref-icon">${label.slice(0,3).toUpperCase()}</span><span class="ref-text">${value}</span></div>`;
-        return;
-      }
-      let safe = escapeHTML(line);
-      safe = safe.replace(urlRegex, url => {
-        const href = url.startsWith("http") ? url : `https://${url}`;
-        return `<a href="${href}" target="_blank" rel="noopener">${url}</a>`;
+  // Metadados (horário + copiar) — omitidos durante o "digitando…"
+  if (!isTyping){
+    const meta = document.createElement("div");
+    meta.className = "msg-meta";
+    meta.innerHTML = `<span>${formatTime()}</span>`;
+    if (role === "bot"){
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy-btn";
+      copyBtn.type = "button";
+      copyBtn.textContent = "copiar";
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard?.writeText(content).then(() => {
+          copyBtn.textContent = "copiado ✓";
+          setTimeout(() => (copyBtn.textContent = "copiar"), 1500);
+        });
       });
-      html += `<p>${safe}</p>`;
+      meta.appendChild(copyBtn);
+    }
+    col.appendChild(meta);
+  }
+
+  row.appendChild(avatar);
+  row.appendChild(col);
+  el.chat.appendChild(row);
+  scrollToBottom();
+  return row;
+}
+
+/* ============================================================================
+   ENVIO DE MENSAGENS AO WEBHOOK
+   ============================================================================ */
+async function sendMessage(text){
+  if (!text.trim()) return;
+
+  el.suggestions.style.display = "none";
+  addMessage("user", text);
+  el.input.value = "";
+  el.input.style.height = "auto";
+  el.sendBtn.disabled = true;
+  setStatus("thinking");
+
+  const typingRow = addMessage("bot", "", true);
+
+  try {
+    const response = await fetch(CONFIG.WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: text,
+        from: state.sessionId,
+        channel: "web",
+        timestamp: Date.now(),
+      }),
     });
 
-    return html || `<p>${escapeHTML(raw)}</p>`;
+    if (!response.ok) throw new Error(`status ${response.status}`);
+
+    const raw = await response.text();
+    let data;
+    try { data = JSON.parse(raw); } catch { data = raw; }
+
+    const replyText =
+      typeof data === "string"
+        ? data
+        : data?.reply || data?.output || data?.text || "Não consegui montar uma resposta agora.";
+
+    typingRow.remove();
+    addMessage("bot", replyText);
+    setStatus("online");
+  } catch (err) {
+    typingRow.remove();
+    addMessage("bot", "Não consegui falar com o assistente agora. Tente novamente em instantes.");
+    setStatus("offline");
+    console.error("Erro ao chamar o webhook:", err);
+  } finally {
+    el.sendBtn.disabled = false;
+    el.input.focus();
   }
+}
 
-  function addMessage(role, content, isTyping){
-    const row = document.createElement("div");
-    row.className = `row ${role}`;
-
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
-    avatar.textContent = role === "bot" ? "◆" : "";
-    if (role === "user") avatar.style.display = "none";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-
-    if (isTyping){
-      bubble.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
-    } else if (role === "bot"){
-      bubble.innerHTML = renderBotText(content);
-    } else {
-      bubble.textContent = content;
-    }
-
-    row.appendChild(avatar);
-    row.appendChild(bubble);
-    chat.appendChild(row);
-    scrollToBottom();
-    return row;
+function setStatus(kind){
+  if (kind === "thinking"){
+    el.statusDot.classList.remove("offline");
+    el.statusText.textContent = "Pensando…";
+  } else if (kind === "offline"){
+    el.statusDot.classList.add("offline");
+    el.statusText.textContent = "Sem conexão com o assistente";
+  } else {
+    el.statusDot.classList.remove("offline");
+    el.statusText.textContent = "Pronto para ajudar";
   }
+}
 
-  async function sendMessage(text){
-    if (!text.trim()) return;
+/* ============================================================================
+   EVENTOS DE ENTRADA
+   ============================================================================ */
+el.composer.addEventListener("submit", e => {
+  e.preventDefault();
+  sendMessage(el.input.value);
+});
 
-    suggestions.style.display = "none";
-    addMessage("user", text);
-    input.value = "";
-    input.style.height = "auto";
-    sendBtn.disabled = true;
-
-    const typingRow = addMessage("bot", "", true);
-
-    try {
-      const response = await fetch(CONFIG.WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text,
-          from: sessionId,
-          channel: "web",
-          timestamp: Date.now(),
-        }),
-      });
-
-      if (!response.ok) throw new Error(`status ${response.status}`);
-
-      const raw = await response.text();
-      let data;
-      try { data = JSON.parse(raw); } catch { data = raw; }
-
-      const replyText =
-        typeof data === "string"
-          ? data
-          : data?.reply || data?.output || data?.text || "Não consegui montar uma resposta agora.";
-
-      typingRow.remove();
-      addMessage("bot", replyText);
-    } catch (err) {
-      typingRow.remove();
-      addMessage("bot", "Não consegui falar com o assistente agora. Tente novamente em instantes.");
-      console.error("Erro ao chamar o webhook:", err);
-    } finally {
-      sendBtn.disabled = false;
-      input.focus();
-    }
-  }
-
-  composer.addEventListener("submit", e => {
+el.input.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey){
     e.preventDefault();
-    sendMessage(input.value);
-  });
+    sendMessage(el.input.value);
+  }
+});
 
-  input.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey){
-      e.preventDefault();
-      sendMessage(input.value);
+el.input.addEventListener("input", () => {
+  el.input.style.height = "auto";
+  el.input.style.height = Math.min(el.input.scrollHeight, 140) + "px";
+});
+
+// Botão de anexo: ponto de extensão pronto. Hoje apenas abre o seletor de
+// arquivo do sistema e insere o nome no campo de texto — para upload real,
+// envie o arquivo (ex.: FormData) para o seu webhook dentro de sendMessage().
+el.attachBtn.addEventListener("click", () => {
+  const picker = document.createElement("input");
+  picker.type = "file";
+  picker.onchange = () => {
+    if (picker.files[0]) {
+      el.input.value += (el.input.value ? " " : "") + `[arquivo: ${picker.files[0].name}]`;
+      el.input.focus();
     }
-  });
+  };
+  picker.click();
+});
 
-  input.addEventListener("input", () => {
-    input.style.height = "auto";
-    input.style.height = Math.min(input.scrollHeight, 120) + "px";
-  });
+el.newChatBtn.addEventListener("click", () => {
+  clearChat();
+  el.suggestions.style.display = "flex";
+  addMessage("bot", CONFIG.welcomeMessage);
+  closeSidebar();
+});
 
-  suggestions.querySelectorAll(".chip").forEach(chip => {
-    chip.addEventListener("click", () => sendMessage(chip.textContent));
-  });
+el.clearBtn.addEventListener("click", () => {
+  clearChat();
+  el.suggestions.style.display = "flex";
+  addMessage("bot", CONFIG.welcomeMessage);
+});
 
-  // Mensagem inicial de boas-vindas
-  addMessage("bot", "Olá! Eu ajudo a encontrar o relatório certo do Power BI. Me conta o que você está procurando — assunto, período ou área — que eu indico onde está.");
+/* ============================================================================
+   MODAL DE CONFIGURAÇÕES
+   ============================================================================ */
+function openSettings(){
+  el.cfgName.value = CONFIG.brandName;
+  el.cfgSub.value = CONFIG.brandSub;
+  el.cfgWebhook.value = CONFIG.WEBHOOK_URL;
+  applyTheme(state.theme); // sincroniza os botões de tema no modal
+  const currentHue = getComputedStyle(document.documentElement).getPropertyValue("--brand-h").trim();
+  applyBrandColor(currentHue || CONFIG.defaultHue);
+  el.settingsModal.classList.add("open");
+}
+function closeSettingsModal(){ el.settingsModal.classList.remove("open"); }
+
+el.settingsBtn.addEventListener("click", openSettings);
+el.closeSettings.addEventListener("click", closeSettingsModal);
+el.cancelSettings.addEventListener("click", closeSettingsModal);
+el.settingsModal.addEventListener("click", e => {
+  if (e.target === el.settingsModal) closeSettingsModal();
+});
+
+el.saveSettings.addEventListener("click", () => {
+  CONFIG.brandName = el.cfgName.value.trim() || CONFIG.brandName;
+  CONFIG.brandSub = el.cfgSub.value.trim() || CONFIG.brandSub;
+  CONFIG.WEBHOOK_URL = el.cfgWebhook.value.trim() || CONFIG.WEBHOOK_URL;
+  applyBrandTexts();
+  closeSettingsModal();
+});
+
+function applyBrandTexts(){
+  el.sidebarBrandName.textContent = CONFIG.brandName;
+  el.sidebarBrandSub.textContent = CONFIG.brandSub;
+  el.headerTitle.textContent = CONFIG.headerTitle || CONFIG.brandSub;
+  el.footnoteText.textContent = CONFIG.footnote;
+}
+
+/* ============================================================================
+   SUGESTÕES INICIAIS
+   ============================================================================ */
+function renderSuggestions(){
+  el.suggestions.innerHTML = "";
+  CONFIG.suggestions.forEach(text => {
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.type = "button";
+    chip.textContent = text;
+    chip.addEventListener("click", () => sendMessage(text));
+    el.suggestions.appendChild(chip);
+  });
+}
+
+/* ============================================================================
+   INICIALIZAÇÃO
+   ============================================================================ */
+function init(){
+  applyTheme(CONFIG.defaultTheme);
+  applyBrandColor(CONFIG.defaultHue);
+  renderHuePresets();
+  applyBrandTexts();
+  renderSuggestions();
+  renderConversationList();
+  clearChat();
+  addMessage("bot", CONFIG.welcomeMessage);
+}
+init();
 </script>
 </body>
 </html>
